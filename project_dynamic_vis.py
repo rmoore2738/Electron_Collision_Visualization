@@ -17,9 +17,27 @@ df["Run"] = df["Run"].astype(str)
 # create list of unique runs to use for changing second chart based on hover/click action in first chart
 run_list = df["Run"].unique()
 
+# Create the options list dynamically based on the columns in the DataFrame
+options = [{'label': col, 'value': col} for col in df.columns]
+
 # design/layout portion
 app.layout = html.Div([
     html.H1('Interactive Visual'),
+    dcc.Dropdown(
+        id='dropdown',
+        options=options,
+        value=df.columns[0]
+    ),
+    dcc.Graph(id='histogram'),
+    html.Div('Energy of Eletron 1 vs Run Number.'),
+    html.Div([
+            dcc.Graph(id='pie')
+
+        ]),
+    html.Div('Energy of Eletron 2 vs Run Number.'),
+    html.Div([
+            dcc.Graph(id='pie2')
+        ]),
     html.Div('Interactive Scatterplot.'),
 
     # add dropdowns to select columns for axes
@@ -41,7 +59,9 @@ app.layout = html.Div([
         dcc.Graph(id='interactive_graph',
             hoverData={'points': [{'curveNumber': 0}]}),
         dcc.Graph(id='limit_graph')
-        ])
+        ]),
+
+    
 ])
 
 #@callback - when input changes (xaxis or yaxis column), update output (scatter)
@@ -49,6 +69,7 @@ app.layout = html.Div([
     Output('interactive_graph', 'figure'),
     Input('xvalue', 'value'),
     Input('yvalue', 'value'))
+
 def update_scatter(xvalue_col, yvalue_col):
 
     fig = px.scatter(df, x=xvalue_col, y=yvalue_col, color="Run", title=xvalue_col + " vs " + yvalue_col,
@@ -78,6 +99,31 @@ def update_insight(hover_id, xvalue_col, yvalue_col):
                      title=xvalue_col + " vs " + yvalue_col + " for Run " + run_list[run_id])
     fig.update_layout(transition_duration=500)
 
+    return fig
+@app.callback(
+    Output('pie', 'figure'),
+    Input('interactive_graph', 'hoverData')
+    )
+
+def update_pie(hover_id):
+        fig = px.pie(df, values = "E1", names = "Run")
+        return fig
+
+@app.callback(
+    Output('pie2', 'figure'),
+    Input('interactive_graph', 'hoverData')
+    )
+
+def update_pie(hover_id):
+        fig = px.pie(df, values = "E2", names = "Run")
+        return fig
+        
+@app.callback(
+    Output(component_id='histogram', component_property='figure'),
+    Input(component_id='dropdown', component_property='value')
+)
+def update_histogram(selected_column):
+    fig = px.histogram(df, x=selected_column)
     return fig
 
 if __name__ == '__main__':
