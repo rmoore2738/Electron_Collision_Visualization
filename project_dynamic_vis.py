@@ -23,8 +23,8 @@ options = [{'label': col, 'value': col} for col in df.columns]
 
 # design/layout portion
 app.layout = html.Div([
-    html.H1('Interactive Visual'),
-    html.H4("Histogram and Heatmap Dashboard"),
+    html.H1('Electron Collision Interactive Visualizations'),
+    html.H4("Histogram and Heatmap of Attributes"),
     html.Div([
         html.Label("Select a Run"),
         dcc.Dropdown(
