@@ -4,6 +4,7 @@
 from dash import Dash, html, dcc, Input, Output
 import plotly.express as px
 import pandas as pd
+import plotly.graph_objs as go
 
 app = Dash(__name__)
 
@@ -23,12 +24,25 @@ options = [{'label': col, 'value': col} for col in df.columns]
 # design/layout portion
 app.layout = html.Div([
     html.H1('Interactive Visual'),
-    dcc.Dropdown(
-        id='dropdown',
-        options=options,
-        value=df.columns[0]
-    ),
-    dcc.Graph(id='histogram'),
+    html.H4("Histogram and Heatmap Dashboard"),
+    html.Div([
+        html.Label("Select a Run"),
+        dcc.Dropdown(
+            id='Run_Category-dropdown',
+            options=[{'label': i, 'value': i} for i in df['Run'].unique()],
+            value=df['Run'].unique()[0]
+        ),
+        html.Br(),
+        html.Label("Select the Attribute"),
+        dcc.Dropdown(
+            id='attribute-dropdown',
+            options=[{'label': i, 'value': i} for i in df.columns[1:]],
+            value=df.columns[1]
+        ),
+        html.Br(),
+        dcc.Graph(id='histogram', figure={}),
+        dcc.Graph(id='heatmap', figure={})])
+    ,
     html.Div('Energy of Eletron 1 vs Run Number.'),
     html.Div([
             dcc.Graph(id='pie')
@@ -52,8 +66,8 @@ app.layout = html.Div([
             id="yvalue",
             options=drop_list,
             value=drop_list[10])
-    ]),                       
-    
+    ]),
+
     # create div for graphs
     html.Div([
         dcc.Graph(id='interactive_graph',
@@ -61,7 +75,6 @@ app.layout = html.Div([
         dcc.Graph(id='limit_graph')
         ]),
 
-    
 ])
 
 #@callback - when input changes (xaxis or yaxis column), update output (scatter)
@@ -74,7 +87,7 @@ def update_scatter(xvalue_col, yvalue_col):
 
     fig = px.scatter(df, x=xvalue_col, y=yvalue_col, color="Run", title=xvalue_col + " vs " + yvalue_col,
                      color_discrete_sequence=px.colors.qualitative.Light24)
-    
+
     fig.update_xaxes(title=xvalue_col)
     fig.update_yaxes(title=yvalue_col)
     fig.update_layout(transition_duration=500)
@@ -94,7 +107,7 @@ def update_insight(hover_id, xvalue_col, yvalue_col):
 
     # filter data based on run_id from hover data
     df_new = df[df["Run"].isin([run_list[run_id]])]
-    
+
     fig = px.scatter(df_new, x=xvalue_col, y=yvalue_col, color='Event',
                      title=xvalue_col + " vs " + yvalue_col + " for Run " + run_list[run_id])
     fig.update_layout(transition_duration=500)
@@ -117,14 +130,38 @@ def update_pie(hover_id):
 def update_pie(hover_id):
         fig = px.pie(df, values = "E2", names = "Run")
         return fig
-        
-@app.callback(
-    Output(component_id='histogram', component_property='figure'),
-    Input(component_id='dropdown', component_property='value')
-)
-def update_histogram(selected_column):
-    fig = px.histogram(df, x=selected_column)
-    return fig
 
+
+@app.callback(
+    [Output(component_id='histogram', component_property='figure'),
+     Output(component_id='heatmap', component_property='figure')],
+    [Input(component_id='Run_Category-dropdown', component_property='value'),
+     Input(component_id='attribute-dropdown', component_property='value')]
+)
+def update_figure(Run_Category, attribute):
+    filterd_df = df[df['Run'] == Run_Category]
+
+    # Create the histogram
+    fig_histt = px.histogram(filterd_df, x=attribute, nbins=10, title=f"Histogram of {attribute} for Run {Run_Category}")
+    # corr_matrix = filterd_df.corr()
+    corr_matrix = filterd_df.drop('Run', axis=1).corr()
+
+    # Create the heatmap
+    heatmap = go.Heatmap(
+        z=corr_matrix.values,
+        x=corr_matrix.columns,
+        y=corr_matrix.columns,
+        colorscale='RdBu',
+        zmin=-1,
+        zmax=1,
+    )
+    htmp_lyt = go.Layout(title=f'Heatmap Showing Correlation for Attributes in Run {Run_Category}',
+                           xaxis=dict(title='Variable'),
+                           yaxis=dict(title='Variable'))
+
+    fig_htmp=go.Figure(data=[heatmap], layout=htmp_lyt)
+
+    return fig_histt, fig_htmp
+#commented out when running on flask website
 if __name__ == '__main__':
     app.run_server(debug=True)
