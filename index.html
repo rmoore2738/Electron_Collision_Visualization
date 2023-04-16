@@ -24,24 +24,23 @@
     </div>
   </section>
   <section class="grid">
-    <article>hello</article>
+    <article>Static graphs</article>
+    <article>Pie Charts</article>
     <article></article>
+    <article>Histogram</article>
+    <article>INFO</article>
+    <article>heat map</article>
     <article></article>
-    <article></article>
-    <article></article>
-    <article></article>
-    <article></article>
-    <article></article>
+    <article>Scatter Plots</article>
   </section>
   <footer class="page-footer">
-    <span>made by </span>
+    <span></span>
     
   </footer>
 </section>
 
 <style>
-  /* RESET RULES
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
+  /* Tutorial: https://codepen.io/tutsplus/details/gOObdjQ */
 @import url("https://fonts.googleapis.com/css?family=Lato:400,700&display=swap");
 
 :root {
@@ -87,9 +86,7 @@ ul {
   list-style: none;
 }
 
-
-/* HEADER STYLES
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
+/* HEADER */
 .page-header {
   position: fixed;
   top: 0;
@@ -103,7 +100,6 @@ ul {
   background: var(--page-header-bgColor);
 }
 
-
 .page-header .toggle-mob-menu {
   display: none;
   margin-left: 5px;
@@ -112,9 +108,7 @@ ul {
   border-radius: var(--border-radius);
 }
 
-
-/* PAGE CONTENT STYLES
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
+/* PAGE CONTENT*/
 .page-content {
   position: relative;
   left: var(--page-header-width);
@@ -124,8 +118,6 @@ ul {
   color: var(--page-content-txtColor);
   background: var(--page-content-bgColor);
 }
-
-
 
 .page-content .grid {
   display: grid;
@@ -146,147 +138,7 @@ ul {
   grid-column: 1 / -1;
 }
 
-
-/* MQ RULES
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
-@media screen and (max-width: 767px) {
-  .page-header,
-  .page-content {
-    position: static;
-    width: 100%;
-  }
-
-  .page-header {
-    padding: 10px;
-  }
-
-  .page-header nav {
-    flex-direction: row;
-  }
-
-  .page-header .logo {
-    margin: 0;
-  }
-
-  .page-header .logo svg {
-    width: 83px;
-    height: 35px;
-  }
-
-  .page-header .toggle-mob-menu {
-    display: block;
-  }
-
-  .page-header .admin-menu {
-    position: absolute;
-    left: 98px;
-    top: 57px;
-    margin-top: 0;
-    z-index: 2;
-    border-radius: var(--border-radius);
-    background: var(--page-header-bgColor);
-    visibility: hidden;
-    opacity: 0;
-    transform: scale(0.95);
-    transition: all 0.2s;
-  }
-
-  .page-header .admin-menu li:nth-last-child(2) {
-    margin-bottom: 12px;
-  }
-
-  .page-header .admin-menu li:last-child button,
-  .search-and-user .admin-profile .greeting {
-    display: none;
-  }
-
-  .page-content {
-    min-height: 0;
-    padding: 10px;
-  }
-
-  .page-content .grid {
-    grid-gap: 10px;
-  }
-
-  .search-and-user {
-    position: absolute;
-    left: 131px;
-    top: 10px;
-    padding: 0;
-    grid-column-gap: 5px;
-    width: calc(100% - 141px);
-    border-radius: var(--border-radius);
-    background: transparent;
-  }
-
-  .search-and-user [type="search"] {
-    font-size: 1rem;
-    height: 35px;
-  }
-
-  .search-and-user form svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .search-and-user .admin-profile svg {
-    fill: var(--white);
-  }
-}
-
-@media screen and (max-width: 400px) {
-  .page-content .grid > article {
-    grid-column: 1 / -1;
-  }
-}
-
-
-/* BODY CLASSES
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
-.mob-menu-opened .toggle-mob-menu svg {
-  transform: rotate(180deg);
-}
-
-.mob-menu-opened .page-header .admin-menu {
-  transform: scale(1);
-  visibility: visible;
-  opacity: 1;
-}
-
-@media screen and (min-width: 768px) {
-  .collapsed .page-header {
-    width: 40px;
-  }
-
-  .collapsed .page-header .admin-menu li > * {
-    padding: 10px;
-  }
-
-  .collapsed .page-header .logo,
-  .collapsed .page-header .admin-menu span,
-  .collapsed .page-header .admin-menu .menu-heading {
-    display: none;
-  }
-
-  .collapsed .page-header .admin-menu svg {
-    margin-right: 0;
-  }
-
-  .collapsed .page-header .collapse-btn svg {
-    transform: rotate(180deg);
-  }
-
-  .collapsed .page-content {
-    left: 40px;
-    width: calc(100% - 40px);
-  }
-}
-
-
-
-/* FOOTER
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
+/* FOOTER */
 .page-footer {
   font-size: 1rem;
   display: flex;
