@@ -15,6 +15,9 @@ df = pd.read_csv("dielectron.csv")
 drop_list = df.columns.to_list()
 df["Run"] = df["Run"].astype(str)
 
+# add None to drop_list for 3d scatter option
+drop_list3d = ['None'] + drop_list
+
 # create list of unique runs to use for changing second chart based on hover/click action in first chart
 run_list = df["Run"].unique()
 
@@ -53,71 +56,102 @@ app.layout = html.Div([
             dcc.Graph(id='pie2')
         ]),
     html.Div('Interactive Scatterplot.'),
-
-    # add dropdowns to select columns for axes
     html.Div([
-        html.Label('X-axis'),
-        dcc.Dropdown(
-            id="xvalue",
-            options=drop_list,
-            value=drop_list[2]),
-        html.Label('Y-axis'),
-        dcc.Dropdown(
-            id="yvalue",
-            options=drop_list,
-            value=drop_list[10])
-    ]),
-
-    # create div for graphs
+        # add dropdowns to select columns for axes
+        html.Div([
+            html.Label('X-axis'),
+            dcc.Dropdown(
+                id="xvalue",
+                options=drop_list,
+                value=drop_list[2])], 
+                style={"width" : "30%", "display" : "inline-block", "padding" : "10px"}
+            ),
+        html.Div([
+            html.Label('Y-axis'),
+            dcc.Dropdown(
+                id="yvalue",
+                options=drop_list,
+                value=drop_list[10])
+            ], style={"width" : "30%", "display" : "inline-block", "padding" : "10px"}),
+        html.Div([    
+            html.Label('Z-axis (select to enable 3D scatter)'),
+            dcc.Dropdown(
+                id="zvalue",
+                options=drop_list3d,
+                value=drop_list3d[0])
+            ], style={"width" : "30%", "display" : "inline-block", "padding" : "10px"}),                       
+    ]),    
+    # create divs for graphs
     html.Div([
-        dcc.Graph(id='interactive_graph',
-            hoverData={'points': [{'curveNumber': 0}]}),
-        dcc.Graph(id='limit_graph')
-        ]),
+        dcc.Graph(
+            id='interactive_graph',
+            clickData={'points': [{'curveNumber': 0}]} # set default to avoid initial load error
+            )
+        ], style={'width': '49%', 'display': 'inline-block', 'padding': '0 20'}),
+    html.Div([
+        dcc.Graph(
+            id='limit_graph'
+            )
+        ], style={'display': 'inline-block', 'width': '49%'})
 
 ])
 
-#@callback - when input changes (xaxis or yaxis column), update output (scatter)
+#@callback - when input changes (x, y, or z-axis column), update output (scatter)
 @app.callback(
     Output('interactive_graph', 'figure'),
     Input('xvalue', 'value'),
-    Input('yvalue', 'value'))
+    Input('yvalue', 'value'),
+    Input('zvalue', 'value'))
+def update_scatter(xvalue_col, yvalue_col, zvalue_col):
+    if zvalue_col == 'None': # 2d plot
 
-def update_scatter(xvalue_col, yvalue_col):
-
-    fig = px.scatter(df, x=xvalue_col, y=yvalue_col, color="Run", title=xvalue_col + " vs " + yvalue_col,
-                     color_discrete_sequence=px.colors.qualitative.Light24)
-
-    fig.update_xaxes(title=xvalue_col)
-    fig.update_yaxes(title=yvalue_col)
-    fig.update_layout(transition_duration=500)
+        fig = px.scatter(df, x=xvalue_col, y=yvalue_col, color="Run", title=xvalue_col + " vs " + yvalue_col,
+                        color_discrete_sequence=px.colors.qualitative.Light24)
+        
+        fig.update_xaxes(title=xvalue_col)
+        fig.update_yaxes(title=yvalue_col)
+        fig.update_layout(transition_duration=500)
+    
+    else: # 3d plot
+        fig = px.scatter_3d(df, x=xvalue_col, y=yvalue_col, z=zvalue_col, color="Run", title=xvalue_col + " vs " + yvalue_col + " vs " + zvalue_col,
+                        color_discrete_sequence=px.colors.qualitative.Light24)
+        
+        fig.update_xaxes(title=xvalue_col)
+        fig.update_yaxes(title=yvalue_col)
+        fig.update_layout(transition_duration=500)
 
     return fig
 
 #@callback to update second graph to show unique Run values
 @app.callback(
     Output('limit_graph', 'figure'),
-    Input('interactive_graph', 'hoverData'),
+    Input('interactive_graph', 'clickData'),
     Input('xvalue', 'value'),
-    Input('yvalue', 'value'))
-def update_insight(hover_id, xvalue_col, yvalue_col):
+    Input('yvalue', 'value'),
+    Input('zvalue', 'value'))
+def update_insight(clickData, xvalue_col, yvalue_col, zvalue_col):
 
     # get value for Run from curveNumber in hover data
-    run_id = hover_id['points'][0]['curveNumber']
+    run_id = clickData['points'][0]['curveNumber']
 
     # filter data based on run_id from hover data
     df_new = df[df["Run"].isin([run_list[run_id]])]
-
-    fig = px.scatter(df_new, x=xvalue_col, y=yvalue_col, color='Event',
-                     title=xvalue_col + " vs " + yvalue_col + " for Run " + run_list[run_id])
-    fig.update_layout(transition_duration=500)
+    
+    if zvalue_col == 'None':
+        fig = px.scatter(df_new, x=xvalue_col, y=yvalue_col, color='Event',
+                        title=xvalue_col + " vs " + yvalue_col + " for Run " + run_list[run_id])
+        fig.update_layout(transition_duration=500)
+    else:
+        fig = px.scatter_3d(df_new, x=xvalue_col, y=yvalue_col, z=zvalue_col, color='Event',
+                        title=xvalue_col + " vs " + yvalue_col + " vs " + zvalue_col + " for Run " + run_list[run_id])
+        fig.update_layout(transition_duration=500)
 
     return fig
+
 @app.callback(
     Output('pie', 'figure'),
     Input('interactive_graph', 'hoverData')
     )
-
 def update_pie(hover_id):
         fig = px.pie(df, values = "E1", names = "Run")
         return fig
@@ -126,18 +160,16 @@ def update_pie(hover_id):
     Output('pie2', 'figure'),
     Input('interactive_graph', 'hoverData')
     )
-
 def update_pie(hover_id):
         fig = px.pie(df, values = "E2", names = "Run")
         return fig
-
 
 @app.callback(
     [Output(component_id='histogram', component_property='figure'),
      Output(component_id='heatmap', component_property='figure')],
     [Input(component_id='Run_Category-dropdown', component_property='value'),
      Input(component_id='attribute-dropdown', component_property='value')]
-)
+    )
 def update_figure(Run_Category, attribute):
     filterd_df = df[df['Run'] == Run_Category]
 
@@ -162,6 +194,7 @@ def update_figure(Run_Category, attribute):
     fig_htmp=go.Figure(data=[heatmap], layout=htmp_lyt)
 
     return fig_histt, fig_htmp
+
 #commented out when running on flask website
 if __name__ == '__main__':
     app.run_server(debug=True)
