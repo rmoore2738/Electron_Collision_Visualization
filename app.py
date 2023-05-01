@@ -3,11 +3,14 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
+import dash_table
 import pandas as pd
 import numpy as np
 import plotly.graph_objs as go
 import plotly.express as px
 import plotly.figure_factory as ff
+from collections import OrderedDict
+
 
 # load data
 df = pd.read_csv("dielectron.csv")
@@ -24,6 +27,10 @@ run_list = df["Run"].unique()
 
 # Create the options list dynamically based on the columns in the DataFrame
 options = [{'label': col, 'value': col} for col in df.columns]
+
+df2 = pd.DataFrame(
+    OrderedDict([(name, col_data * 10) for (name, col_data) in df.items()])
+)
 '''
 df = pd.read_csv('data/data_sample.csv')
 vars_cat = [var for var in df.columns if var.startswith('cat')]
@@ -50,7 +57,7 @@ sidebar = html.Div(
                 html.H6('By: Brian Gilmore, Rebecca Moore and Chiamaka Aghaizu',
                         style={'margin-left': '16px'})
                 ],
-            style={"height": "80vh"},
+            style={"height": "130vh"},
             className='bg-primary text-white font-italic'
             ),
         dbc.Row(
@@ -112,9 +119,20 @@ content = html.Div(
         dbc.Row(
             [
                 html.Div([
-                                        html.P('DESCRIPTION AND SUCH HERE')
-                        ]
-                        ),
+                            html.P('DESCRIPTION AND SUCH HERE'),
+                            dash_table.DataTable(data = df.to_dict('records'),
+                            columns = [{'id': c, 'name': c} for c in df.columns],
+                            style_header={
+                                'backgroundColor': 'rgb(30, 30, 30)',
+                                'color': 'white'
+                            },
+                            style_data={
+                                'backgroundColor': 'rgb(50, 50, 50)',
+                                'color': 'white'
+                            },
+                            style_table={'overflowX': 'scroll'},
+                            page_size=10)
+            ]),
                 dbc.Col(
                     [
                         html.Div([
@@ -130,7 +148,7 @@ content = html.Div(
                             dcc.Graph(id="pie2")])
                         ])
                 ],
-            style={'height': '70vh',
+            style={'height': '130vh',
                    'margin-top': '16px', 'margin-left': '8px',
                     'margin-right': '8px'}),
         dbc.Row(
