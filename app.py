@@ -3,17 +3,19 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
-import dash_table
 import pandas as pd
 import numpy as np
 import plotly.graph_objs as go
 import plotly.express as px
 import plotly.figure_factory as ff
-from collections import OrderedDict
 
 
 # load data
 df = pd.read_csv("dielectron.csv")
+description='''In this dashboard, the process of electron collisions is visually emphasized. Since these collisions occur at a scale invisible to the human eye, visualizing their components during and around the events are necessary to better understand them.
+ This dashboard is designed to introduce the concept of electron collisions in an easily comprehensible way.
+'''
+desc2=''' Interact with the dropdowns on the left to explore and observe the attributes! '''
 
 # create list for dropdowns, change Run to string to not color using color bar
 drop_list = df.columns.to_list()
@@ -27,10 +29,6 @@ run_list = df["Run"].unique()
 
 # Create the options list dynamically based on the columns in the DataFrame
 options = [{'label': col, 'value': col} for col in df.columns]
-
-df2 = pd.DataFrame(
-    OrderedDict([(name, col_data * 10) for (name, col_data) in df.items()])
-)
 '''
 df = pd.read_csv('data/data_sample.csv')
 vars_cat = [var for var in df.columns if var.startswith('cat')]
@@ -45,34 +43,63 @@ fig_pie1 = px.pie(df, values = "E1", names = "Run",
                  color_discrete_sequence=['#bad6eb', '#2b7bba'])
 fig_pie2 = px.pie(df, values = "E2", names = "Run",
                  color_discrete_sequence=['#bad6eb', '#2b7bba'])
+card1=dbc.Card(
+    dbc.CardBody(
+        [
+            html.H6("Total Number of Instances", className="card-subtitle"),
+            html.H4("100,000", className="card-title") ] ),
+    style={"width": "18rem"},
+)
 
+card2 = dbc.Card(
+    dbc.CardBody(
+        [
+            html.H6("Average Invariant Mass (M)", className="card-subtitle"),
+            html.H4("30.02 GeV", className="card-title" ) ] ),
+    style={"width": "18rem"},
+)
+card3 = dbc.Card(
+    dbc.CardBody(
+        [
+            html.H6("Average Number of Events Per Run",className="card-subtitle"),
+            html.H4("7692", className="card-title") ]
+    ),
+    style={"width": "18rem"},
+)
 
-
+cards = dbc.Row(
+    [html.Br(),
+        dbc.Col(card1, width="auto", align="center"),
+        dbc.Col(card2, width="auto"),
+        dbc.Col(card3, width="auto"),
+    ],align="end",
+)
 sidebar = html.Div(
     [
         dbc.Row(
-            [
-                html.H4('Electron Collision Visualization Dashboard',
-                        style={'margin-top': '20px', 'margin-left': '22px'}),
-                html.H6('By: Brian Gilmore, Rebecca Moore and Chiamaka Aghaizu',
-                        style={'margin-left': '16px'})
+            [html.Br(),
+                html.Br(),
+                html.H4('ELECTRON COLLISION VISUALIZATION DASHBOARD',
+                        style={'margin-top': '20px', 'margin-left': '15px','font-weight':'bold'}),
+                html.H6('By: Brian Gilmore, Rebecca Moore, Chiamaka Aghaizu',
+                        style={'margin-left': '16px',"text-align":"center"})
                 ],
-            style={"height": "130vh"},
+            style={"height": "80vh"},
             className='bg-primary text-white font-italic'
             ),
         dbc.Row(
             [
                 html.Div([
-                    html.P('"Select a Run"',
+                    html.P('Select a Run',
                            style={'margin-top': '8px', 'margin-bottom': '4px'},
                            className='font-weight-bold'),
                     dcc.Dropdown(
                         id='Run_Category-dropdown',
-                        options=[{'label': i, 'value': i} for i in df['Run'].unique()],
-                        value=df['Run'].unique()[0],
+                        options=[{'label': 'Total', 'value': 'Total'}] + [{'label': i, 'value': i} for i in df['Run'].unique()],
+                        value='Total',
                     
                     ),
-                    html.P('Continuous Variable',
+                    html.P('Choose an Attibute',
                            style={'margin-top': '16px', 'margin-bottom': '4px'},
                            className='font-weight-bold'),
                     dcc.Dropdown(
@@ -115,58 +142,47 @@ sidebar = html.Div(
                 ],
 )
 content = html.Div(
-    [
+    [cards,
         dbc.Row(
             [
                 html.Div([
-                            html.P('DESCRIPTION AND SUCH HERE'),
-                            dash_table.DataTable(data = df.to_dict('records'),
-                            columns = [{'id': c, 'name': c} for c in df.columns],
-                            style_header={
-                                'backgroundColor': 'rgb(30, 30, 30)',
-                                'color': 'white'
-                            },
-                            style_data={
-                                'backgroundColor': 'rgb(50, 50, 50)',
-                                'color': 'white'
-                            },
-                            style_table={'overflowX': 'scroll'},
-                            page_size=10)
-            ]),
+                                        html.P(description,style={'font-color': 'FFFFFF','font-weight':'bold'}),
+                                        
+                                        html.P(desc2,style={'font-color': 'FFFFFF','font-weight':'bold'}),
+                                        html.Br(),html.Br()
+                        ]
+                        ),
                 dbc.Col(
                     [
                         html.Div([
-                            html.P('Energy of Eletron 1 vs Run Number.',
+                            html.P('Energy of Electron 1 vs Run Number.',
                                    className='font-weight-bold'),
                             dcc.Graph(id="pie")])
                         ]),
                 dbc.Col(
                     [
                         html.Div([
-                            html.P('Energy of Eletron 2 vs Run Number.',
+                            html.P('Energy of Electron 2 vs Run Number.',
                                    className='font-weight-bold'),
                             dcc.Graph(id="pie2")])
                         ])
                 ],
-            style={'height': '130vh',
+            style={'height': '70vh',
                    'margin-top': '16px', 'margin-left': '8px',
                     'margin-right': '8px'}),
         dbc.Row(
             [
-                html.Br(),
-                html.Br(),
+                # html.Br(),
+                # html.Br(),
                 dbc.Col(
                     [
-                        html.Div([
-                            html.P('Histogram of Attributes',
+                        html.Div([html.Br(),html.Br(),html.Br(),html.Br(),
+                            html.P('Histogram and Heatmap of Attributes',
                                    className='font-weight-bold'),
                             dcc.Graph(id='histogram')])
                         ]),
-                        html.Div([
-                                        html.P('DESCRIPTION AND SUCH HERE')
-                        ])
                 ],
-            style={'height': '70vh'}),
+            style={'height': '65vh'}),
         dbc.Row(
             [
                 dbc.Col(
@@ -174,11 +190,8 @@ content = html.Div(
                         html.Div([
                             dcc.Graph(id='heatmap')])
                         ]),
-                        
-
-
                 ],
-            style={'height': '90vh',
+            style={'height': '86vh',
                      'margin-top': '16px', 'margin-left': '8px',
                      'margin-bottom': '1px', 'margin-right': '8px'}),
         dbc.Row(
@@ -209,7 +222,8 @@ content = html.Div(
 app.layout = dbc.Container(
     [
         dbc.Row(
-            [
+            [  
+                #   dbc.Col(cards, width='auto'),
                 dbc.Col(sidebar, width=3, className='bg-light'),
                 dbc.Col(content, width=9)
                 ]
@@ -283,39 +297,44 @@ def update_insight(clickData, xvalue_col, yvalue_col, zvalue_col):
      Input(component_id='attribute-dropdown', component_property='value')]
     )
 def update_figure(Run_Category, attribute):
-    filterd_df = df[df['Run'] == Run_Category]
+     
+        val=''
+        if Run_Category == 'Total':
+            filterd_df = df
+            val='All Runs'
+        else:
+            filterd_df = df[df['Run'] == Run_Category]
+            val=f'Run {Run_Category}'
 
-    # Create the histogram
-    fig_histt = px.histogram(filterd_df, x=attribute, nbins=10, title=f"Histogram of {attribute} for Run {Run_Category}")
-    fig_histt.update_layout({
-            'plot_bgcolor': 'rgba(0,0,0,0)',
-            'paper_bgcolor': 'rgba(0,0,0,0)'
-            
-        })
-    # corr_matrix = filterd_df.corr()
-    corr_matrix = filterd_df.drop('Run', axis=1).corr()
+        # Create the histogram
+        fig_histt = px.histogram(filterd_df, x=attribute, nbins=40, title=f"Histogram of {attribute} for {val}")
+        fig_histt.update_layout({
+                'plot_bgcolor': 'rgba(0,0,0,0)',
+                'paper_bgcolor': 'rgba(0,0,0,0)'       })
 
-    # Create the heatmap
-    heatmap = go.Heatmap(
-        z=corr_matrix.values,
-        x=corr_matrix.columns,
-        y=corr_matrix.columns,
-        colorscale='Blues',
-        zmin=-1,
-        zmax=1,
-    )
-    htmp_lyt = go.Layout(title=f'Heatmap Showing Correlation for Attributes in Run {Run_Category}',
-                           xaxis=dict(title='Variable'),
-                           yaxis=dict(title='Variable'),
+        corr_matrix = filterd_df.drop('Run', axis=1).corr()
+
+        # Create the heatmap
+        heatmap = go.Heatmap(
+            z=corr_matrix.values,
+            x=corr_matrix.columns,
+            y=corr_matrix.columns,
+            colorscale='Blues',
+            zmin=-1,
+            zmax=1,
+        )
+        htmp_lyt = go.Layout(title=f'Heatmap Showing Correlation of Attributes for {val}',
+                            xaxis=dict(title='Variable'),
+                            yaxis=dict(title='Variable'),
                            paper_bgcolor='rgba(0,0,0,0)',
                            plot_bgcolor='rgba(0,0,0,0)',
                            width=1080,
-                           height=600,
-                           )
+                           height=600,)
 
-    fig_htmp=go.Figure(data=[heatmap], layout=htmp_lyt)
+        fig_htmp=go.Figure(data=[heatmap], layout=htmp_lyt)
 
-    return fig_histt, fig_htmp
+        return fig_histt, fig_htmp
+
 
 @app.callback(
     Output('pie', 'figure'),
