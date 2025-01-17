@@ -3,7 +3,9 @@
 
  
 
-## Live Website: http://optimak.pythonanywhere.com/
+## Live Website: http://optimak.pythonanywhere.com/ (OUTDATED) 
+
+##Video Demo: https://youtu.be/dSvKn9SycSo
 
 
 
