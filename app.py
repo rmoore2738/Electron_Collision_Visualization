@@ -9,6 +9,8 @@ import plotly.graph_objs as go
 import plotly.express as px
 import plotly.figure_factory as ff
 
+app = dash.Dash(__name__, ...)
+server = app.server
 
 # load data
 df = pd.read_csv("dielectron.csv")
