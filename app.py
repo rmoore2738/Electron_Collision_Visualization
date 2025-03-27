@@ -34,7 +34,6 @@ df = pd.read_csv('data/data_sample.csv')
 vars_cat = [var for var in df.columns if var.startswith('cat')]
 vars_cont = [var for var in df.columns if var.startswith('cont')]
 '''
-app = dash.Dash(external_stylesheets=[dbc.themes.CYBORG])
 
 # pie chart
 pie = df.groupby('E1').count()['Run'] / len(df)
