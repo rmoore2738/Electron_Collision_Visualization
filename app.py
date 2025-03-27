@@ -8,9 +8,8 @@ import plotly.graph_objs as go
 import plotly.express as px
 import plotly.figure_factory as ff
 
-app = dash.Dash(__name__, ...)
-server = app.server
-
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.CYBORG], suppress_callback_exceptions=True)
+server = app.server  # THIS is crucial for Render
 # load data
 df = pd.read_csv("dielectron.csv")
 description='''In this dashboard, the process of electron collisions is visually emphasized. Since these collisions occur at a scale invisible to the human eye, visualizing their components during and around the events are necessary to better understand them.
