@@ -76,70 +76,50 @@ cards = dbc.Row(
 sidebar = html.Div(
     [
         dbc.Row(
-            [html.Br(),
-                html.Br(),
-                html.H4('ELECTRON COLLISION VISUALIZATION DASHBOARD',
-                        style={'margin-top': '20px', 'margin-left': '15px','font-weight':'bold'}),
-                html.H6('By: Brian Gilmore, Rebecca Moore, Chiamaka Aghaizu',
-                        style={'margin-left': '16px',"text-align":"center"})
-                ],
-            style={"height": "80vh"},
-            className='bg-primary text-white font-italic'
-            ),
-        dbc.Row(
             [
-                html.Div([
-                    html.P('Select a Run',
-                           style={'margin-top': '8px', 'margin-bottom': '4px'},
-                           className='font-weight-bold'),
-                    dcc.Dropdown(
-                        id='Run_Category-dropdown',
-                        options=[{'label': 'Total', 'value': 'Total'}] + [{'label': i, 'value': i} for i in df['Run'].unique()],
-                        value='Total',
-                    
-                    ),
-                    html.P('Choose an Attibute',
-                           style={'margin-top': '16px', 'margin-bottom': '4px'},
-                           className='font-weight-bold'),
-                    dcc.Dropdown(
-                        id='attribute-dropdown',
-                        options=[{'label': i, 'value': i} for i in df.columns[1:]],
-                        value=df.columns[1],
-                        style={'width': '320px'}
-                    ),
-                ]
+                html.Br(),
+                html.Br(),
+                html.H4(
+                    'ELECTRON COLLISION VISUALIZATION DASHBOARD',
+                    style={'margin-top': '20px', 'margin-left': '15px', 'font-weight': 'bold'}
+                ),
+                html.H6(
+                    'By: Brian Gilmore, Rebecca Moore, Chiamaka Aghaizu',
+                    style={'margin-left': '16px', "text-align": "center"}
                 )
             ],
-            style={'height': '170vh', 'margin': '8px'}),
-        dbc.Row(
+            className='bg-primary text-white font-italic'
+        ),
+        html.Div(
             [
-                dbc.Col(
-                    [
-                        html.Div([
-                            html.P('3D Scatterplot',
-                                   className='font-weight-bold'),
-                            html.P('X Variable'),
-                            dcc.Dropdown(
-                                id="xvalue",
-                                options=drop_list,
-                                value=drop_list[2]),
-                                html.P('Y Variable'),
-                                dcc.Dropdown(
-                                    id="yvalue",
-                                    options=drop_list,
-                                    value=drop_list[10]),
-                                    html.P('Z Variable'),
-                                    dcc.Dropdown(
-                                        id="zvalue",
-                                        options=drop_list3d,
-                                        value=drop_list3d[0]),], 
-                                style={'height': '110vh','width': '320px'}
-                                )
-                           
-                            ])
-                        ])
-                ],
+                html.P('Select a Run', className='font-weight-bold'),
+                dcc.Dropdown(
+                    id='Run_Category-dropdown',
+                    options=[{'label': 'Total', 'value': 'Total'}] +
+                            [{'label': i, 'value': i} for i in df['Run'].unique()],
+                    value='Total'
+                ),
+                html.P('Choose an Attribute', className='font-weight-bold'),
+                dcc.Dropdown(
+                    id='attribute-dropdown',
+                    options=[{'label': i, 'value': i} for i in df.columns[1:]],
+                    value=df.columns[1],
+                    style={'width': '100%'}
+                ),
+                html.Hr(),
+                html.P('3D Scatterplot', className='font-weight-bold'),
+                html.P('X Variable'),
+                dcc.Dropdown(id="xvalue", options=drop_list, value=drop_list[2]),
+                html.P('Y Variable'),
+                dcc.Dropdown(id="yvalue", options=drop_list, value=drop_list[10]),
+                html.P('Z Variable'),
+                dcc.Dropdown(id="zvalue", options=drop_list3d, value=drop_list3d[0])
+            ],
+            style={'overflowY': 'auto', 'maxHeight': '80vh', 'padding': '1rem'}
+        )
+    ]
 )
+
 content = html.Div(
     [cards,
         dbc.Row(
@@ -220,16 +200,23 @@ content = html.Div(
 
 app.layout = dbc.Container(
     [
-        dbc.Row(
-            [  
-                #   dbc.Col(cards, width='auto'),
-                dbc.Col(sidebar, width=3, className='bg-light'),
-                dbc.Col(content, width=9)
-                ]
+        dbc.Row([
+            dbc.Col(
+                sidebar,
+                xs=12, md=4,  # Full width on mobile, 4 cols on desktop
+                className='bg-light',
+                style={"padding": "1rem"}
             ),
-        ],
-    fluid=True
-    )
+            dbc.Col(
+                content,
+                xs=12, md=8,  # Full width on mobile, 8 cols on desktop
+                style={"padding": "1rem"}
+            )
+        ])
+    ],
+    fluid=True,
+    style={"padding": "0"}
+)
 
 
 #@callback - when input changes (x, y, or z-axis column), update output (scatter)
